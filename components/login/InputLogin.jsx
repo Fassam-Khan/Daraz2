@@ -28,8 +28,7 @@ import { useSelector } from "react-redux"
 
 
 export function InputLogin() {
-    const user = useSelector((state)=> state.auth)
-    console.log(user)
+ 
 
 
     
@@ -73,7 +72,7 @@ export function InputLogin() {
 
                 })
 
-                router.push(`/account/orders${res.uid}`)
+                router.push(`/account/orders/${res.user.uid}`)
 
 
 

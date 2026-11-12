@@ -1,7 +1,8 @@
-
+"use client"
 import '@/app/globals.css'
 import { Poppins } from "next/font/google";
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
 
 
 
@@ -17,6 +18,25 @@ const poppins = Poppins({
 
 export default function AccountLayout({ children }) {
 
+    const {user, loading} = useSelector((state)=> state.auth)
+
+    if(loading){
+        return <p>Loading..</p>
+    }
+
+      if (!user) {
+    return (
+      <div>
+        <h1>My Account</h1>
+        <p>You are not logged in.</p>
+
+        <button>Login</button>
+      </div>
+    );
+  }
+
+    
+
     
 
 
@@ -31,7 +51,7 @@ export default function AccountLayout({ children }) {
 
                     {/* Profile  */}
                     <div>
-                        <Link href={'/account/profile'}>
+                        <Link href={`/account/profile/${user.uid}`}>
                             <div className='bg-gray-300 flex justify-center items-center rounded-full w-8 h-8'>
                                 M
                             </div>
@@ -45,12 +65,12 @@ export default function AccountLayout({ children }) {
 
                     <aside className='flex flex-col gap-4 mt-6 w-[200px]'>
                         <div>
-                            <Link href={'/account/orders'}>
+                            <Link href={`/account/orders/${user.uid}`}>
                                 Orders
                             </Link>
                         </div>
                         <div>
-                            <Link href={'/account/profile'}>
+                            <Link href={`/account/profile/${user.uid}`}>
 
                                 Profile
                             </Link>
