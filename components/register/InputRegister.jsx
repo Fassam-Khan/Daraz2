@@ -20,6 +20,7 @@ import {  getAuth,createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase"
 import { db } from "@/lib/firebase"
 import { doc, setDoc } from "firebase/firestore"; 
+import Link from "next/link"
 
 
 
@@ -98,7 +99,7 @@ export function InputRegister() {
 
 
     return (
-        <div className="grid w-full max-w-sm gap-6 px-2">
+        <div className="grid w-full max-w-sm gap-5 px-2">
             <div>
                 <Label htmlFor="email"> Email address*</Label>
                 <InputGroup className="mt-3">
@@ -158,6 +159,10 @@ export function InputRegister() {
 
             <div className="w-full">
                 <button  onClick={submitHandler} className="cursor-pointer rounded-full px-2 py-1 bg-red-500 text-white font-semibold w-full">{Loading ? "Loading": "Create Account"}</button>
+            </div>
+
+            <div className="">
+                <Link href={'/account/login'} className="cursor-pointer"><p className="text-sm underline">Already have an account? Login here</p></Link>
             </div>
 
             <ToastContainer/>

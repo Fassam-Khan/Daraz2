@@ -1,6 +1,7 @@
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import "@/app/globals.css";
+import StoreProvider from "@/components/storeProvider";
 
 // Configure Poppins font
 const poppins = Poppins({
@@ -19,10 +20,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-poppins bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
-      
+        <StoreProvider>      
 
           {children}
-        
+          </StoreProvider>
+
 
         
       </body>
