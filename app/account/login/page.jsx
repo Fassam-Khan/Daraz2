@@ -1,5 +1,4 @@
 import React from 'react'
-import { InputRegister } from '../../../../components/register/InputRegister'
 import { Label } from '@/components/ui/label'
 import "@/app/globals.css"
 import { InputLogin } from '@/components/login/InputLogin';

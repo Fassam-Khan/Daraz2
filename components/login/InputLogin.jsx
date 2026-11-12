@@ -20,6 +20,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSelector } from "react-redux"
 
 
 
@@ -27,6 +28,9 @@ import { useRouter } from "next/navigation"
 
 
 export function InputLogin() {
+    const user = useSelector((state)=> state.auth)
+    console.log(user)
+
 
     
 
@@ -69,7 +73,7 @@ export function InputLogin() {
 
                 })
 
-                router.push("/account/orders")
+                router.push(`/account/orders${res.uid}`)
 
 
 
