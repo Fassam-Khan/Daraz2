@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Poppins } from "next/font/google";
+
 import StoreProvider from "@/components/storeProvider";
 
 const geistSans = Geist({
@@ -10,6 +12,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata = {
@@ -25,7 +34,7 @@ export default function RootLayout({ children }) {
       
     >
       <StoreProvider>
-      <body className="min-h-full flex flex-col">{children}</body></StoreProvider>
+      <body className="min-h-full flex flex-col font-poppins">{children}</body></StoreProvider>
     </html>
   );
 }
