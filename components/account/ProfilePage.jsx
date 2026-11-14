@@ -6,24 +6,37 @@ import { signOut } from 'firebase/auth'
 import { getAuth } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { db } from '@/lib/firebase'
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 import { useEffect, useState } from 'react'
 import { doc, getDoc } from "firebase/firestore";
+import { EditInfo } from './EditInfo'
 
 
 
 const ProfilePage = () => {
     const { id } = useParams()
     const [UserData, setUserData] = useState({})
+    const [IsEditInfo, setIsEditInfo] = useState(false)
 
 
     useEffect(() => {
 
         const getUser = async () => {
-            try{
+            try {
                 const docRef = doc(db, "users", id);
                 const docSnap = await getDoc(docRef);
-    
+
                 if (docSnap.exists()) {
                     setUserData(docSnap.data())
                 } else {
@@ -31,11 +44,11 @@ const ProfilePage = () => {
                     console.log("No such document!");
                 }
 
-            }catch(error){
-                console.log(erro)
+            } catch (error) {
+                console.log(error)
 
             }
-         
+
 
 
 
@@ -71,8 +84,14 @@ const ProfilePage = () => {
                 {/* userName  */}
                 <div className='flex justify-between'>
                     <p>{UserData.firstName} {UserData.lastName}</p>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5'>Edit</button>
+                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={()=> setIsEditInfo(true)}>Edit</button>
+
                 </div>
+
+                
+
+
+
 
                 {/* Email  */}
 
@@ -115,6 +134,20 @@ const ProfilePage = () => {
 
                 </div>
             </div>
+
+
+
+            {IsEditInfo && (
+                     <EditInfo
+                     User={UserData}
+                     open={IsEditInfo}
+                     setOpen={setIsEditInfo}
+                     userid={id}
+                   />
+                )}
+
+
+
 
         </div>
     )
