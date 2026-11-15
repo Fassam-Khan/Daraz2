@@ -63,6 +63,11 @@ export function EditInfo({ User, open, setOpen, userid }) {
       });
   
       toast.success("Edit Successfully");
+      setOpen(false)
+      setEditInfo({
+        firstName: User.firstName || "",
+        lastName: User.lastName || "",
+      });
   
   
     } catch (error) {

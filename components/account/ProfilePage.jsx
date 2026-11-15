@@ -7,20 +7,11 @@ import { getAuth } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { db } from '@/lib/firebase'
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-
 import { useEffect, useState } from 'react'
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc , collection} from "firebase/firestore";
 import { EditInfo } from './EditInfo'
+import { AddressAdd } from './AddressAdd'
+import { getDocs } from 'firebase/firestore'
 
 
 
@@ -28,6 +19,9 @@ const ProfilePage = () => {
     const { id } = useParams()
     const [UserData, setUserData] = useState({})
     const [IsEditInfo, setIsEditInfo] = useState(false)
+    const [AddAdress, setAddAdress] = useState(false)
+    const [Address, setAddress] = useState([])
+
 
 
     useEffect(() => {
@@ -56,7 +50,36 @@ const ProfilePage = () => {
 
         getUser()
 
-    }, [])
+    }, [IsEditInfo])
+
+    useEffect(() => {
+        const getAddresses = async () => {
+            try {
+                const addressRef = collection(
+                    db,
+                    "users",
+                    id,
+                    "addresses"
+                );
+    
+                const snapshot = await getDocs(addressRef);
+    
+                const addresses = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+    
+                setAddress(addresses);
+            } catch (error) {
+                console.log("Error getting addresses:", error);
+            }
+        };
+    
+        if (id) {
+            getAddresses();
+        }
+    
+    }, [id, AddAdress]);
 
 
 
@@ -84,11 +107,11 @@ const ProfilePage = () => {
                 {/* userName  */}
                 <div className='flex justify-between'>
                     <p>{UserData.firstName} {UserData.lastName}</p>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={()=> setIsEditInfo(true)}>Edit</button>
+                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={() => setIsEditInfo(true)}>Edit</button>
 
                 </div>
 
-                
+
 
 
 
@@ -104,25 +127,55 @@ const ProfilePage = () => {
                 {/* addres  */}
                 <div className='flex justify-between mt-10'>
                     <p>Addresses</p>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5'>Add</button>
+                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={() => setAddAdress(true)}>Add</button>
                 </div>
 
                 {/* Email  */}
 
-                <button className='flex justify-between mt-6 border w-full  rounded-lg shadow-xl px-4 py-3  items-center'>
-                    <div className='flex gap-4'>
-                        <div className='w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center'>
-                            <MapPin />
+                {Address.length > 0 ? (
+    Address.map((e) => (
+        <button
+            key={e.id}
+            className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center"
+        >
+            <div className="flex gap-4">
+                <div className="w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center">
+                    <MapPin />
+                </div>
 
-                        </div>
-                        <div className='flex flex-col items-start'>
-                            <p className='text-sm'>Muhammafassam</p>
-                            <p className='text-[12px]'>khusf </p>
-                        </div>
-                    </div>
-                    <p className='text-black'><ArrowRight /></p>
+                <div className="flex flex-col items-start">
+                    <p className="text-sm">
+                        {e.firstName} {e.lastName}
+                    </p>
 
-                </button>
+                    <p className="text-xs text-gray-500">
+                        {e.address}
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                        {e.city}, {e.country}
+                    </p>
+                </div>
+            </div>
+
+            <ArrowRight />
+        </button>
+    ))
+) : (
+    <button className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center">
+        <div className="flex gap-4">
+            <div className="w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center">
+                <MapPin />
+            </div>
+
+            <div className="flex flex-col items-start">
+                <p className="text-sm">No Address Added</p>
+            </div>
+        </div>
+
+        <ArrowRight />
+    </button>
+)}
 
 
 
@@ -138,13 +191,25 @@ const ProfilePage = () => {
 
 
             {IsEditInfo && (
-                     <EditInfo
-                     User={UserData}
-                     open={IsEditInfo}
-                     setOpen={setIsEditInfo}
-                     userid={id}
-                   />
-                )}
+                <EditInfo
+                    User={UserData}
+                    open={IsEditInfo}
+                    setOpen={setIsEditInfo}
+                    userid={id}
+                />
+            )}
+
+
+            {AddAdress && (
+                <AddressAdd User={UserData}
+                    open={AddAdress}
+                    setOpen={setAddAdress}
+                    userid={id} />
+            )}
+
+
+
+
 
 
 
