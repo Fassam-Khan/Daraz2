@@ -1,221 +1,234 @@
-"use client"
-import React from 'react'
-import { useParams } from 'next/navigation'
-import { ArrowRight, MapPin } from 'lucide-react'
-import { signOut } from 'firebase/auth'
-import { getAuth } from 'firebase/auth'
-import { toast } from 'react-toastify'
-import { db } from '@/lib/firebase'
-import { Button } from "@/components/ui/button"
-import { useEffect, useState } from 'react'
-import { doc, getDoc , collection} from "firebase/firestore";
-import { EditInfo } from './EditInfo'
-import { AddressAdd } from './AddressAdd'
-import { getDocs } from 'firebase/firestore'
+"use client";
 
-
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { ArrowRight, MapPin } from "lucide-react";
+import { signOut, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { EditInfo } from "./EditInfo";
+import { AddressAdd } from "./AddressAdd";
+import { EditAddress } from "./EditAddress";
 
 const ProfilePage = () => {
-    const { id } = useParams()
-    const [UserData, setUserData] = useState({})
-    const [IsEditInfo, setIsEditInfo] = useState(false)
-    const [AddAdress, setAddAdress] = useState(false)
-    const [Address, setAddress] = useState([])
+  const { id } = useParams();
 
+  const [UserData, setUserData] = useState({});
+  const [IsEditInfo, setIsEditInfo] = useState(false);
 
+  const [AddAdress, setAddAdress] = useState(false);
 
-    useEffect(() => {
+  const [Address, setAddress] = useState([]);
 
-        const getUser = async () => {
-            try {
-                const docRef = doc(db, "users", id);
-                const docSnap = await getDoc(docRef);
+  const [IsEditAddress, setIsEditAddress] = useState(false);
+  const [AddressData, setAddressData] = useState({});
 
-                if (docSnap.exists()) {
-                    setUserData(docSnap.data())
-                } else {
-                    // docSnap.data() will be undefined in this case
-                    console.log("No such document!");
-                }
+  // Get User
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        if (!id) return;
 
-            } catch (error) {
-                console.log(error)
+        const docRef = doc(db, "users", id);
+        const docSnap = await getDoc(docRef);
 
-            }
-
-
-
-
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        } else {
+          console.log("No such document!");
         }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-        getUser()
+    getUser();
+  }, [id, IsEditInfo]);
 
-    }, [IsEditInfo])
+  // Get Addresses
+  useEffect(() => {
+    const getAddresses = async () => {
+      try {
+        if (!id) return;
 
-    useEffect(() => {
-        const getAddresses = async () => {
-            try {
-                const addressRef = collection(
-                    db,
-                    "users",
-                    id,
-                    "addresses"
-                );
-    
-                const snapshot = await getDocs(addressRef);
-    
-                const addresses = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-    
-                setAddress(addresses);
-            } catch (error) {
-                console.log("Error getting addresses:", error);
-            }
-        };
-    
-        if (id) {
-            getAddresses();
-        }
-    
-    }, [id, AddAdress]);
+        const addressRef = collection(
+          db,
+          "users",
+          id,
+          "addresses"
+        );
 
+        const snapshot = await getDocs(addressRef);
 
+        const addresses = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
+        setAddress(addresses);
+      } catch (error) {
+        console.log("Error getting addresses:", error);
+      }
+    };
 
+    getAddresses();
+  }, [id, AddAdress, IsEditAddress]);
 
-    const logOutUser = async () => {
-        const auth = getAuth()
+  // Edit Address
+  const editAddress = (address) => {
+    setAddressData(address);
+    setIsEditAddress(true);
+  };
 
-        try {
-            const res = await signOut(auth)
-            toast.warning("Logout successfully")
-            console.log(res)
+  // Logout
+  const logOutUser = async () => {
+    const auth = getAuth();
 
-        } catch (error) {
-            console.log(error)
+    try {
+      await signOut(auth);
 
-        }
-
+      toast.warning("Logout successfully");
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    return (
-        <div className=' md:w-[700px] w-full md:m-auto'>
+  return (
+    <div className="md:w-[700px] w-full md:m-auto">
 
-            <div className=''>
-                {/* userName  */}
-                <div className='flex justify-between'>
-                    <p>{UserData.firstName} {UserData.lastName}</p>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={() => setIsEditInfo(true)}>Edit</button>
+      {/* User Name */}
+      <div className="flex justify-between">
+        <p>
+          {UserData.firstName} {UserData.lastName}
+        </p>
 
-                </div>
-
-
-
-
-
-
-                {/* Email  */}
-
-                <div className='flex flex-wrap justify-between mt-6 border  rounded-lg shadow-xl px-4 py-3  items-center'>
-                    <p className='text-gray-400'>Email</p>
-                    <p className='text-black text-sm'>{UserData.email}</p>
-
-                </div>
-
-                {/* addres  */}
-                <div className='flex justify-between mt-10'>
-                    <p>Addresses</p>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={() => setAddAdress(true)}>Add</button>
-                </div>
-
-                {/* Email  */}
-
-                {Address.length > 0 ? (
-    Address.map((e) => (
         <button
-            key={e.id}
-            className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center"
+          className="cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5"
+          onClick={() => setIsEditInfo(true)}
         >
+          Edit
+        </button>
+      </div>
+
+      {/* Email */}
+      <div className="flex flex-wrap justify-between mt-6 border rounded-lg shadow-xl px-4 py-3 items-center">
+        <p className="text-gray-400">Email</p>
+
+        <p className="text-black text-sm">
+          {UserData.email}
+        </p>
+      </div>
+
+      {/* Addresses Header */}
+      <div className="flex justify-between mt-10">
+        <p>Addresses</p>
+
+        <button
+          className="cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5"
+          onClick={() => setAddAdress(true)}
+        >
+          Add
+        </button>
+      </div>
+
+      {/* Addresses */}
+      {Address.length > 0 ? (
+        Address.map((address) => (
+          <button
+            onClick={() => editAddress(address)}
+            key={address.id}
+            className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center"
+          >
             <div className="flex gap-4">
-                <div className="w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center">
-                    <MapPin />
-                </div>
 
-                <div className="flex flex-col items-start">
-                    <p className="text-sm">
-                        {e.firstName} {e.lastName}
-                    </p>
+              <div className="w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center">
+                <MapPin size={16} />
+              </div>
 
-                    <p className="text-xs text-gray-500">
-                        {e.address}
-                    </p>
+              <div className="flex flex-col items-start">
 
-                    <p className="text-xs text-gray-500">
-                        {e.city}, {e.country}
-                    </p>
-                </div>
+                <p className="text-sm">
+                  {address.firstName} {address.lastName}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  {address.address}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  {address.city}, {address.country}
+                </p>
+
+              </div>
+
             </div>
 
-            <ArrowRight />
-        </button>
-    ))
-) : (
-    <button className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center">
-        <div className="flex gap-4">
+            <ArrowRight size={18} />
+          </button>
+        ))
+      ) : (
+        <button className="flex justify-between mt-6 border w-full rounded-lg shadow-xl px-4 py-3 items-center">
+          <div className="flex gap-4">
+
             <div className="w-6 h-6 p-1 bg-gray-300 rounded-md flex justify-center items-center">
-                <MapPin />
+              <MapPin size={16} />
             </div>
 
             <div className="flex flex-col items-start">
-                <p className="text-sm">No Address Added</p>
-            </div>
-        </div>
-
-        <ArrowRight />
-    </button>
-)}
-
-
-
-                {/* SingOut  */}
-
-                <div className='mt-10'>
-                    <button className='cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5' onClick={logOutUser}>Logout</button>
-
-
-                </div>
+              <p className="text-sm">
+                No Address Added
+              </p>
             </div>
 
+          </div>
 
+          <ArrowRight size={18} />
+        </button>
+      )}
 
-            {IsEditInfo && (
-                <EditInfo
-                    User={UserData}
-                    open={IsEditInfo}
-                    setOpen={setIsEditInfo}
-                    userid={id}
-                />
-            )}
+      {/* Logout */}
+      <div className="mt-10">
+        <button
+          className="cursor-pointer border text-blue-500 hover:text-blue-700 rounded-md px-2 py-0.5"
+          onClick={logOutUser}
+        >
+          Logout
+        </button>
+      </div>
 
+      {/* Edit User Info */}
+      {IsEditInfo && (
+        <EditInfo
+          User={UserData}
+          open={IsEditInfo}
+          setOpen={setIsEditInfo}
+          userid={id}
+        />
+      )}
 
-            {AddAdress && (
-                <AddressAdd User={UserData}
-                    open={AddAdress}
-                    setOpen={setAddAdress}
-                    userid={id} />
-            )}
+      {/* Edit Address */}
+      {IsEditAddress && (
+        <EditAddress
+          Address={AddressData}
+          open={IsEditAddress}
+          setOpen={setIsEditAddress}
+          userid={id}
+        />
+      )}
 
+      {/* Add Address */}
+      {AddAdress && (
+        <AddressAdd
+          User={UserData}
+          open={AddAdress}
+          setOpen={setAddAdress}
+          userid={id}
+        />
+      )}
 
+    </div>
+  );
+};
 
-
-
-
-
-
-        </div>
-    )
-}
-
-export default ProfilePage
+export default ProfilePage;
